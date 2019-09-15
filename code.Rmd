@@ -4,9 +4,32 @@ author: "Aedan Mordecai"
 date: "13/09/2019"
 output: html_document
 ---
+``` {r}
 URL<- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
 download.file(URL, destfile = "./trainingExercise.csv")
-trainingData<- read.csv("trainingExercise.csv")
+trainingData<- read.csv("trainingExercise.csv", na.strings = "NA", "", " ", "#DIV/0!")
+```
+
+after viewing the data, it seems there are a lot of missing values. It would be useful to know how many.
+
+```{r missingValues}
+table(is.na(trainingData))
+```
+as can be seen, almost half of the values are NA. Before we decide what to do with them, we should see if there is a pattern. The metadata describes some of the variables as summary of the data, such as the average and variance, these variables seem to contain the bulk of the missing values. I am only interested in the raw data, so I will remove the variables beginning with `var_`, `avg_`, `stddev_`, `max_`, `min_`, `kurtosis_`, `skewness_`, and `amplitude_`. 
+
+```{r removeColoumns}
+trainingDataN<- trainingData %>% select(-starts_with("var"), -starts_with("stddev"), -starts_with("avg"), -starts_with("amplitude"), -starts_with("min"), -starts_with("max"), -starts_with("kurtosis"), -starts_with("skewness"),-raw_timestamp_part_1,-raw_timestamp_part_2,-user_name,-X,-cvtd_timestamp,-new_window,-num_window)
+```
+I also removed the coloumns with identifying data, such as name and time stamp, as these aren't the predictors we are studying. 
+
+Lets check again how many missing values we have left.
+
+```{r missingValuesCheck}
+table(is.na(trainingDataN))
+```
+They're are no more missing values, which means we have a complete set of data.
+
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
